@@ -4,17 +4,188 @@
 
 ## Table of Contents
 
+### 5. 💰 Margin  
+- [Margin](#margin)  
+
+
 ### 6. 📊 Market Data  
 - [MarketSnapshot](#marketsnapshot)
 - [MarketFeed](#marketfeed)  
 - [MarketDepth](#marketdepth)
   
-  
-  
-### 7. historical data 
-- [HistoricalCandle](#historicalcandle)   
-  
 ---
+
+# Margin
+
+## Overview of MarginV4 API
+
+The `MarginV4` API provides detailed margin information for a specified client code <user> . It retrieves equity and mutual fund margin details by querying the backend database and returning structured financial data. This API is essential for stock trading platforms needing to check real-time margin status for users.
+
+---
+
+## Endpoint
+
+```
+POST https://Openapi.5paisa.com/VendorsAPI/Service1.svc/V4/Margin
+```
+
+---
+
+## Authentication
+
+- Requires Bearer Token authorization.
+- Include the token in the `Authorization` header as:  
+  `Authorization: Bearer <JWT_Token>`
+- Cookie header may be required with valid session cookie:  
+  `Cookie: 5paisacookie=<session_token>`
+
+---
+
+## Request Headers
+
+| Header           | Description                 | Required |
+|------------------|-----------------------------|----------|
+| Content-Type     | Must be `application/json`  | Yes      |
+| Authorization    | Bearer JWT token            | Yes      |
+| Cookie           | Session cookie              | Optional |
+
+---
+
+## Request Body
+
+```json
+{
+  "head": {
+    "key": "dVOtp6A6mRzrBO6SdAs7Vf"
+  },
+  "body": {
+    "ClientCode": "50"
+  }
+}
+```
+
+| Parameter  | Type   | Description                           | Required |
+|------------|--------|-------------------------------------|----------|
+| head.key   | string | API access key                      | Yes      |
+| body.ClientCode | string | Unique client identifier for margin data | Yes      |
+
+---
+
+## cURL Example
+
+```bash
+curl --location 'https://Openapi.5paisa.com/VendorsAPI/Service1.svc/V4/Margin' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+--header 'Cookie: 5paisacookie=kmfrozkfxvest' \
+--data '{
+    "head": {
+        "key": "dfgh34567fgh
+    },
+    "body": {
+        "ClientCode": "456789"
+    }
+}'
+```
+
+---
+
+## Response Body
+
+```json
+{
+  "head": {
+    "responseCode": "5PMarginV4",
+    "status": 0,
+    "statusDescription": "Success"
+  },
+  "body": {
+    "ClientCode": "50",
+    "Status": 0,
+    "Message": "",
+    "EquityMargin": [
+      {
+        "AdhocMargin": 0,
+        "CollateralValueAfterHairCut": 0,
+        "NetAvailableMargin": 0,
+        "MarginUtilized": 0,
+        "TotalCollateralValue": 0,
+        "DerivativeMargin": 0,
+        "Ledgerbalance": 0,
+        "DPFreeStockValue": 0,
+        "GrossHoldingValue": 0,
+        "GrossHoldingValueCoverPercentage": 0,
+        "HairCut": 0,
+        "MarginBlockedforOpenPostion_Cash": 0,
+        "MarginBlockedforOpenPostion_Collateral": 0,
+        "MarginBlockedforPendingOrder_Cash": 0,
+        "MarginBlockedforPendingOrder_Collateral": 0,
+        "MFCollateralValueAfterHaircut": 0,
+        "OptionsPremium": 0,
+        "FundsWithdrawal": 0,
+        "MarginBlockedForPendingOrders": 0,
+        "FundsPayln": 0,
+        "TodaysLoss": 0,
+        "Unsettled_Credits": 0
+      }
+    ],
+    "MFMargin": [
+      {
+        "MFCollateralValue": 0,
+        "MFFreeStockValue": 0,
+        "MFHaircutValue": 0
+      }
+    ],
+    "TimeStamp": "2025-05-19T12:00:00"
+  }
+}
+```
+
+---
+
+## Response Fields Description
+
+| Field                             | Type     | Description                                 |
+|----------------------------------|----------|---------------------------------------------|
+| head.responseCode                | string   | Internal API request code                    |
+| head.status                      | int      | Status code (0 = Success, others indicate error) |
+| head.statusDescription           | string   | Status message                              |
+| body.ClientCode                 | string   | Client code reflected back                  |
+| body.Status                     | int      | Business logic status (0 = Success)          |
+| body.Message                    | string   | Error or success message                     |
+| body.EquityMargin               | array    | Array of equity margin details               |
+| body.EquityMargin[].AdhocMargin | decimal  | Adhoc margin amount                           |
+| body.EquityMargin[].CollateralValueAfterHairCut | decimal | Collateral value after haircut               |
+| body.EquityMargin[].NetAvailableMargin | decimal | Net margin available                          |
+| ...                            | ...      | Other margin fields as shown above           |
+| body.MFMargin                  | array    | Array of mutual fund margin details          |
+| body.MFMargin[].MFCollateralValue | decimal | Mutual fund collateral value                   |
+| body.MFMargin[].MFFreeStockValue | decimal  | Mutual fund free stock value                   |
+| body.MFMargin[].MFHaircutValue   | decimal  | Mutual fund haircut value                      |
+| body.TimeStamp                 | datetime | Timestamp of the response                     |
+
+---
+
+## Error Handling
+
+| Status Code | Meaning                  | Description                    |
+|-------------|--------------------------|--------------------------------|
+| 9           | Invalid Session          | Authentication failed or token expired |
+| 2           | Input Validation Error   | Missing or invalid ClientCode or head key |
+| 1           | Data Not Found           | No margin info available for the ClientCode |
+
+---
+
+
+## Additional Notes
+
+- The API supports multi-layer validation: header key, authorization JWT, and client session cookies.
+- The margin data returned is consolidated from multiple tables and stored procedures.
+- This version (V4) enhances margin details compared to earlier versions, including derivatives and mutual fund margins.
+- Always ensure your client code is validated to avoid unauthorized data access.
+
+---
+
 # MarketSnapshot
 
 ## Overview of MarketSnapshotV1 API 
@@ -661,224 +832,6 @@ The response contains the following:
 | `Price`          | Decimal | Price at this depth level            |
 | `Quantity`       | Integer | Quantity available at this level     |
 | `NumberOfOrders` | Integer | Number of orders at this price level |
-
----
-
-
-
-# HistoricalCandle
-
----
-
-## 🔹 API Name
-`GET /V2/historical/{Exch}/{ExchType}/{ScripCode}/{Interval}`
-
----
-
-## 🎯 Purpose
-
-The **Historical Candles API** provides **OHLCV (Open, High, Low, Close, Volume)** data for a specified instrument over a given time range and interval granularity. It is essential for:
-
-- 🧠 Backtesting trading strategies  
-- 📊 Rendering candlestick charts  
-- 📈 Deploying signal-generating indicators  
-- 🤖 Feeding RAG-enabled trading assistants  
-- 🔍 Analyzing historical price-action behavior  
-
----
-
-## 🔗 Endpoint Template
-
-```url
-https://openapi.5paisa.com/V2/historical/{Exch}/{ExchType}/{ScripCode}/{Interval}?from={FromDate}&end={EndDate}
-````
-
-**Example:**
-
-```
-https://openapi.5paisa.com/V2/historical/N/C/1660/1d?from=2023-01-01&end=2023-03-01
-```
-
----
-
-## 📥 Request Overview
-
-### ➕ HTTP Method
-
-`GET`
-
-### ➕ Required Headers
-
-| Header Name                 | Description                                             |
-| --------------------------- | ------------------------------------------------------- |
-| `Authorization`             | Bearer token issued after successful login (JWT format) |
-| `x-clientcode`              | Unique identifier of the logged-in user                 |
-| `Ocp-Apim-Subscription-Key` | Static subscription key provided with API access        |
-
----
-
-## 🔣 URL Path Parameters
-
-| Parameter   | Type   | Required | Description                                         |
-| ----------- | ------ | -------- | --------------------------------------------------- |
-| `Exch`      | string | ✅ Yes    | Exchange code (e.g., `N`, `B`, `M`, `X`)            |
-| `ExchType`  | string | ✅ Yes    | Segment type (e.g., `C` for cash, `D` for F\&O)     |
-| `ScripCode` | int    | ✅ Yes    | Unique instrument identifier (used to place orders) |
-| `Interval`  | string | ✅ Yes    | Candle interval (`1m`, `5m`, `1d`, etc.)            |
-
----
-
-## 📅 Query Parameters
-
-| Parameter | Type | Required | Description                       |
-| --------- | ---- | -------- | --------------------------------- |
-| `from`    | date | ✅ Yes    | Start date (format: `YYYY-MM-DD`) |
-| `end`     | date | ✅ Yes    | End date (format: `YYYY-MM-DD`)   |
-
----
-
-## 🧪 Sample cURL Request
-
-```bash
-curl --location 'https://openapi.5paisa.com/V2/historical/N/C/1660/1d?from=2023-01-01&end=2023-01-10' \
---header 'Authorization: Bearer <YourAccessToken>' \
---header 'x-clientcode: <YourClientCode>' \
---header 'Ocp-Apim-Subscription-Key: <YourSubscriptionKey>'
-```
-
----
-
-## 📤 Success Response Format
-
-```json
-{
-  "status": "success",
-  "data": {
-    "candles": [
-      [
-        "2023-01-01T00:00:00",
-        292.0,
-        294.0,
-        289.5,
-        293.55,
-        11025420
-      ],
-      [
-        "2023-01-02T00:00:00",
-        295.0,
-        296.3,
-        293.75,
-        295.3,
-        11315876
-      ]
-    ]
-  }
-}
-```
-
-Each array in `candles` represents a single candle for the given interval.
-
----
-
-## ❌ Failure Response Format
-
-```json
-{
-  "head": {
-    "ResponseCode": "RPOpenAPI",
-    "Status": 1,
-    "Status_description": "Error While Processing"
-  },
-  "body": null
-}
-```
-
----
-
-## 📘 Field Breakdown
-
-### 🔹 Candle Array Structure
-
-Each element in the `candles` list is an ordered array:
-
-| Index | Field     | Type     | Description                                      |
-| ----- | --------- | -------- | ------------------------------------------------ |
-| \[0]  | Timestamp | datetime | Start time of the candle (`YYYY-MM-DDTHH:MM:SS`) |
-| \[1]  | Open      | float    | Opening price for the candle period              |
-| \[2]  | High      | float    | Highest price during the period                  |
-| \[3]  | Low       | float    | Lowest price during the period                   |
-| \[4]  | Close     | float    | Closing price for the candle period              |
-| \[5]  | Volume    | integer  | Total traded volume during the period            |
-
----
-
-## ⏱ Supported Intervals
-
-| Code | Description | Typical Use Case                |
-| ---- | ----------- | ------------------------------- |
-| 1m   | 1 Minute    | Scalping, short-term signals    |
-| 5m   | 5 Minutes   | Intraday pattern detection      |
-| 10m  | 10 Minutes  | Low-frequency intraday signals  |
-| 15m  | 15 Minutes  | Swing entries                   |
-| 30m  | 30 Minutes  | Half-hour OHLC confirmation     |
-| 60m  | 1 Hour      | Hourly trend observation        |
-| 1d   | Daily       | Backtesting, EOD strategy logic |
-
----
-
-## 🏦 Exchange Codes
-
-| Code | Exchange          |
-| ---- | ----------------- |
-| N    | NSE               |
-| B    | BSE               |
-| M    | MCX (Commodities) |
-| X    | NCDEX             |
-
----
-
-## 🧾 Exchange Segment Codes
-
-| Code | Segment Description               |
-| ---- | --------------------------------- |
-| C    | Cash Segment (Stocks)             |
-| D    | Derivatives (Futures and Options) |
-| U    | Currency Derivatives              |
-| Y    | NSE & BSE Commodities             |
-| X    | NCDEX Commodities                 |
-
----
-
-## 📎 Notes & Limitations
-
-* ✅ **Max Interval Duration**:
-
-  * 1-minute candles: up to 6 months max
-  * 1-day candles: entire historical range allowed
-
-* ⏳ Timestamps are in **ISO 8601 format**: `YYYY-MM-DDTHH:MM:SS`
-
-* ⚠️ Always validate JWT tokens via the dedicated token validation API before usage
-
-* 🔁 Frequent refresh of recent candles (especially in live trading systems) is recommended
-
----
-
-## 🧠 Ideal Use Cases
-
-| Scenario                        | Why It's Ideal                             |
-| ------------------------------- | ------------------------------------------ |
-| Backtesting trading strategies  | Provides clean OHLCV for signal simulation |
-| Chart rendering in trading apps | Supplies ready-to-plot candle arrays       |
-| RAG-based AI trading assistants | Used as memory-grounded signal facts       |
-| Automated signal generators     | Serves as the data source for triggers     |
-| Momentum / Volume screening     | Used to compute technical indicators       |
-
----
-
-## 📦 Tags
-
-`#HistoricalCandles` `#OHLCV` `#AlgoTrading` `#Backtesting` `#5paisaAPI` `#MarketData` 
 
 ---
 
